@@ -5,7 +5,6 @@
     "main": "index.js",
     "scripts": {
         "start": "npx tsx --env-file=.env --watch  src/index.ts",
-        "build": "tsc",
         "vercel-build": "tsc"
     },
     "author": "A-Word",
