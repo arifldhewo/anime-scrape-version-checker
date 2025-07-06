@@ -41,6 +41,14 @@ app.use(rateLimiterMiddleware());
 
 const port = process.env.PORT || 3000;
 const githubToken = process.env.ANIME_SCRAPE_GITHUB_TOKEN;
+const githubBaseURL = process.env.GITHUB_BASE_URL;
+
+const headers = {
+    Accept: "application/vnd.github+json",
+    Authorization: `Bearer ${githubToken}`,
+    "X-Github-Api-Version": "2022-11-28",
+    "User-Agent": "anime-scrape",
+};
 
 app.get("/", async (req: Request, res: Response) => {
     try {
@@ -59,15 +67,10 @@ app.get("/", async (req: Request, res: Response) => {
 app.get("/version", async (_: Request, res: Response) => {
     try {
         const getRelease = await fetch(
-            "https://api.github.com/repos/arifldhewo/anime-scrape/releases",
+            `${process.env.GITHUB_BASE_URL}/releases`,
             {
                 method: "GET",
-                headers: {
-                    Accept: "application/vnd.github+json",
-                    Authorization: `Bearer ${githubToken}`,
-                    "X-Github-Api-Version": "2022-11-28",
-                    "User-Agent": "anime-scrape",
-                },
+                headers,
             }
         );
 
@@ -87,6 +90,20 @@ app.get("/version", async (_: Request, res: Response) => {
         });
         return;
     }
+});
+
+app.post("/create/releases", async (req: Request, res: Response) => {
+    const { tag_name, name, body } = req.body;
+
+    const createReleases = await fetch(`${githubBaseURL}/releases`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+            tag_name,
+            name,
+            body,
+        }),
+    });
 });
 
 app.listen(port, () => {
