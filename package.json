@@ -10,6 +10,7 @@
     "author": "A-Word",
     "license": "ISC",
     "dependencies": {
+        "dotenv": "^17.2.0",
         "express": "^5.1.0",
         "rate-limiter-flexible": "^7.1.1"
     },

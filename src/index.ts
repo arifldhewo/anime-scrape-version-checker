@@ -1,5 +1,8 @@
 import express, { Request, Response, NextFunction } from "express";
 import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const opts = {
     points: 10, // 6 points
@@ -74,12 +77,15 @@ app.get("/version", async (_: Request, res: Response) => {
             }
         );
 
+        const releaseJSON: any = await getRelease.json();
+        const { tag_name } = releaseJSON[0];
+
         if (getRelease.status > 399) {
             res.status(getRelease.status).json({
                 error: await getRelease.json(),
             });
         } else {
-            res.status(200).send(await getRelease.json());
+            res.status(200).json({ tag_name });
         }
         return;
     } catch (e) {
