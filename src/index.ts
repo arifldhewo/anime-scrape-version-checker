@@ -63,6 +63,37 @@ app.get("/", async (req: Request, res: Response) => {
     }
 });
 
+app.get("/version", async (_: Request, res: Response) => {
+    try {
+        const getRelease = await fetch(
+            `${githubBaseURL}/repos/arifldhewo/anime-scrape/releases`,
+            {
+                method: "GET",
+                headers,
+            }
+        );
+
+        const releaseJSON: any = await getRelease.json();
+
+        if (getRelease.status > 399) {
+            res.status(getRelease.status).json({
+                error: await getRelease.json(),
+            });
+        } else {
+            const { tag_name } = releaseJSON[0];
+            res.status(200).json({ tag_name });
+        }
+        return;
+    } catch (e) {
+        res.status(500).json({
+            status: 500,
+            message: "Internal Server Error",
+            error: e,
+        });
+        return;
+    }
+});
+
 app.get("/version/anime-scrape", async (_: Request, res: Response) => {
     try {
         const getRelease = await fetch(
