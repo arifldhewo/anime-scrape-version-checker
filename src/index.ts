@@ -1,6 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
 import { RateLimiterMemory } from "rate-limiter-flexible";
-import { checkEnv } from "./helper"
 
 const opts = {
     points: 10, // 6 points
@@ -40,9 +39,9 @@ const app = express();
 
 app.use(rateLimiterMiddleware());
 
-const port = checkEnv("PORT") || 3000;
-const githubToken = checkEnv("ANIME_SCRAPE_GITHUB_TOKEN");
-const githubBaseURL = checkEnv("GITHUB_BASE_URL");
+const port = process.env.PORT || 3000;
+const githubToken = process.env.ANIME_SCRAPE_GITHUB_TOKEN;
+const githubBaseURL = process.env.GITHUB_BASE_URL;
 
 const headers = {
     Accept: "application/vnd.github+json",
