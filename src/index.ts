@@ -46,7 +46,7 @@ const githubBaseURL = process.env.GITHUB_BASE_URL;
 const headers = {
     Accept: "application/vnd.github+json",
     Authorization: `Bearer ${githubToken}`,
-    "X-Github-Api-Version": "2022-11-28"
+    "X-Github-Api-Version": "2022-11-28",
 };
 
 app.get("/", async (req: Request, res: Response) => {
@@ -77,12 +77,15 @@ app.get("/version", async (_: Request, res: Response) => {
 
         if (getRelease.status > 399) {
             res.status(getRelease.status).json({
+                status: getRelease.status,
+                message: getRelease.statusText,
                 error: await getRelease.json(),
             });
-        } else {
-            const { tag_name } = releaseJSON[0];
-            res.status(200).json({ tag_name });
+            return;
         }
+
+        const { tag_name } = releaseJSON[0];
+        res.status(200).json({ tag_name });
         return;
     } catch (e) {
         res.status(500).json({
@@ -108,12 +111,15 @@ app.get("/version/anime-scrape", async (_: Request, res: Response) => {
 
         if (getRelease.status > 399) {
             res.status(getRelease.status).json({
+                status: getRelease.status,
+                message: getRelease.statusText,
                 error: await getRelease.json(),
             });
-        } else {
-            const { tag_name } = releaseJSON[0];
-            res.status(200).json({ tag_name });
+            return;
         }
+
+        const { tag_name } = releaseJSON[0];
+        res.status(200).json({ tag_name });
         return;
     } catch (e) {
         res.status(500).json({
@@ -125,7 +131,7 @@ app.get("/version/anime-scrape", async (_: Request, res: Response) => {
     }
 });
 
-app.get("/version/callmyanimelist", async(_:Request, res: Response) => {
+app.get("/version/callmyanimelist", async (_: Request, res: Response) => {
     try {
         const getRelease = await fetch(
             `${githubBaseURL}/repos/arifldhewo/mpv-myanimelist/releases`,
@@ -139,12 +145,15 @@ app.get("/version/callmyanimelist", async(_:Request, res: Response) => {
 
         if (getRelease.status > 399) {
             res.status(getRelease.status).json({
+                status: getRelease.status,
+                message: getRelease.statusText,
                 error: await getRelease.json(),
             });
-        } else {
-            const { tag_name } = releaseJSON[0];
-            res.status(200).json({ tag_name });
+            return;
         }
+
+        const { tag_name } = releaseJSON[0];
+        res.status(200).json({ tag_name });
         return;
     } catch (e) {
         res.status(500).json({
@@ -154,7 +163,7 @@ app.get("/version/callmyanimelist", async(_:Request, res: Response) => {
         });
         return;
     }
-})
+});
 
 app.post("/create/releases", async (req: Request, res: Response) => {
     const { tag_name, name, body } = req.body;
