@@ -1,8 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
-import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible";
-import * as dotenv from "dotenv";
-
-dotenv.config();
+import { RateLimiterMemory } from "rate-limiter-flexible";
+import { checkEnv } from "./helper"
 
 const opts = {
     points: 10, // 6 points
@@ -42,15 +40,14 @@ const app = express();
 
 app.use(rateLimiterMiddleware());
 
-const port = process.env.PORT || 3000;
-const githubToken = process.env.ANIME_SCRAPE_GITHUB_TOKEN;
-const githubBaseURL = process.env.GITHUB_BASE_URL;
+const port = checkEnv("PORT") || 3000;
+const githubToken = checkEnv("ANIME_SCRAPE_GITHUB_TOKEN");
+const githubBaseURL = checkEnv("GITHUB_BASE_URL");
 
 const headers = {
     Accept: "application/vnd.github+json",
     Authorization: `Bearer ${githubToken}`,
-    "X-Github-Api-Version": "2022-11-28",
-    "User-Agent": "anime-scrape",
+    "X-Github-Api-Version": "2022-11-28"
 };
 
 app.get("/", async (req: Request, res: Response) => {
@@ -67,10 +64,10 @@ app.get("/", async (req: Request, res: Response) => {
     }
 });
 
-app.get("/version", async (_: Request, res: Response) => {
+app.get("/version/anime-scrape", async (_: Request, res: Response) => {
     try {
         const getRelease = await fetch(
-            `${process.env.GITHUB_BASE_URL}/releases`,
+            `${githubBaseURL}/repos/arifldhewo/anime-scrape/releases`,
             {
                 method: "GET",
                 headers,
@@ -78,13 +75,13 @@ app.get("/version", async (_: Request, res: Response) => {
         );
 
         const releaseJSON: any = await getRelease.json();
-        const { tag_name } = releaseJSON[0];
 
         if (getRelease.status > 399) {
             res.status(getRelease.status).json({
                 error: await getRelease.json(),
             });
         } else {
+            const { tag_name } = releaseJSON[0];
             res.status(200).json({ tag_name });
         }
         return;
@@ -97,6 +94,37 @@ app.get("/version", async (_: Request, res: Response) => {
         return;
     }
 });
+
+app.get("/version/callmyanimelist", async(_:Request, res: Response) => {
+    try {
+        const getRelease = await fetch(
+            `${githubBaseURL}/repos/arifldhewo/mpv-myanimelist/releases`,
+            {
+                method: "GET",
+                headers,
+            }
+        );
+
+        const releaseJSON: any = await getRelease.json();
+
+        if (getRelease.status > 399) {
+            res.status(getRelease.status).json({
+                error: await getRelease.json(),
+            });
+        } else {
+            const { tag_name } = releaseJSON[0];
+            res.status(200).json({ tag_name });
+        }
+        return;
+    } catch (e) {
+        res.status(500).json({
+            status: 500,
+            message: "Internal Server Error",
+            error: e,
+        });
+        return;
+    }
+})
 
 app.post("/create/releases", async (req: Request, res: Response) => {
     const { tag_name, name, body } = req.body;
